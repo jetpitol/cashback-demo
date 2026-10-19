@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Cashback · Live Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--brand:#4338CA;--brand-dark:#3730A3;--brand-tint:#EEF2FF;--brand-line:#C7D2FE;--ink:#0F172A;--ink2:#475569;--ink3:#94A3B8;--ground:#F1F5F9;--surface:#fff;--line:#E2E8F0;--line2:#CBD5E1;
+--ok-bg:#D1FAE5;--ok-fg:#065F46;--warn-bg:#FFEDD5;--warn-fg:#9A3412;--bad-bg:#FEE2E2;--bad-fg:#7F1D1D;--bad:#B91C1C;--sticky:#FEF08A;--sticky-ink:#422006}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--ground);color:var(--ink);font-size:14px;line-height:1.5}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.topbar{background:var(--ink);color:#fff;display:flex;align-items:center;gap:16px;padding:12px 24px;flex-wrap:wrap}
+.topbar h1{margin:0;font-size:16px;font-weight:800}
+.topbar .sub{color:var(--ink3);font-size:12px}
+.seg{display:inline-flex;background:#1E293B;border-radius:12px;padding:4px;margin-left:auto}
+.seg button{border:0;background:transparent;color:#CBD5E1;padding:8px 16px;border-radius:8px;font-weight:700}
+.seg button.on{background:var(--brand);color:#fff}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;padding:24px;max-width:1500px;margin:0 auto;align-items:start}
+@media(max-width:1100px){.stage{grid-template-columns:1fr}}
+.demo{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:16px;position:sticky;top:16px}
+.demo h3{margin:0;font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:var(--brand-dark);font-weight:800}
+.demo .row{display:flex;gap:8px;flex-wrap:wrap}
+.demo label{font-size:12px;font-weight:700;color:var(--ink2);display:flex;justify-content:space-between}
+.chip{border:1px solid var(--line2);background:#fff;border-radius:8px;padding:6px 10px;font-weight:700;font-size:12px}
+.chip:hover{border-color:var(--brand);color:var(--brand-dark)}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+input[type=range]{width:100%;accent-color:var(--brand)}
+.log{background:var(--ink);color:#CBD5E1;border-radius:12px;padding:12px;height:200px;overflow:auto;font-size:11px;line-height:1.6}
+.log div{white-space:pre-wrap;word-break:break-word}
+.log b{color:#A5B4FC;font-weight:600}
+.hint{font-size:12px;color:var(--ink2)}
+/* phone */
+.phonewrap{display:flex;justify-content:center}
+.phone{width:390px;height:800px;background:#fff;border-radius:44px;border:10px solid var(--ink);box-shadow:0 24px 60px rgba(15,23,42,.25);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.status{height:32px;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font-size:12px;font-weight:700;background:#fff}
+.pscroll{flex:1;overflow-y:auto;background:var(--ground);padding:16px;display:flex;flex-direction:column;gap:16px}
+.phead{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:#fff;border-bottom:1px solid var(--line)}
+.phead h2{margin:0;font-size:18px;font-weight:800}
+.link{border:0;background:none;color:var(--brand-dark);font-weight:700;text-decoration:underline;padding:4px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.hero{background:linear-gradient(160deg,#4338CA,#312E81);color:#fff;border:0}
+.hero .lbl{font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#C7D2FE}
+.timer{display:inline-flex;gap:6px;align-items:center;background:rgba(255,255,255,.15);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
+.big{font-size:36px;line-height:1.1;font-weight:800;letter-spacing:-.6px}
+.bar{height:10px;border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden}
+.bar i{display:block;height:100%;background:#FDE68A;border-radius:99px;transition:width .4s}
+.ticks{display:flex;justify-content:space-between;font-size:11px;color:#C7D2FE;font-weight:600}
+.cta{height:56px;border-radius:16px;border:0;font-weight:800;font-size:16px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s}
+.cta:active:not(:disabled){transform:scale(.98)}
+.cta.go{background:var(--brand);color:#fff;box-shadow:0 8px 20px rgba(67,56,202,.35)}
+.cta.off{background:var(--line);color:#334155}
+.cta.busy{background:var(--brand);color:#fff;opacity:.85}
+.spin{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.micro{font-size:12px;color:var(--ink2);text-align:center}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;border-radius:8px;padding:2px 8px;white-space:nowrap}
+.b-claimed{background:var(--ok-bg);color:var(--ok-fg)}
+.b-held{background:var(--bad-bg);color:var(--bad-fg)}
+.b-expired{background:var(--warn-bg);color:var(--warn-fg)}
+.b-rejected{background:#E2E8F0;color:#334155}
+.hist{display:flex;flex-direction:column}
+.hist .it{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.hist .it:first-child{border-top:0}
+.statepill{align-self:center;background:var(--ink);color:#fff;border-radius:12px;padding:4px 12px;font-size:12px;font-weight:700}
+.modalbg{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal{background:#fff;border-radius:20px;padding:24px;max-width:480px;width:100%;display:flex;flex-direction:column;gap:12px;max-height:90vh;overflow:auto}
+.modal h3{margin:0;font-size:20px;font-weight:800}
+.modal ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.sticky{background:var(--sticky);color:var(--sticky-ink);border-radius:8px;padding:16px;font-size:13px}
+.sticky b{display:block;font-size:14px;margin-bottom:4px}
+/* admin */
+.admin{display:grid;grid-template-columns:220px minmax(0,1fr);background:var(--ground);border-radius:20px;overflow:hidden;border:1px solid var(--line);min-height:760px}
+@media(max-width:800px){.admin{grid-template-columns:1fr}}
+.side{background:var(--ink);color:#E2E8F0;padding:24px 16px;display:flex;flex-direction:column;gap:24px}
+.side .brandrow{display:flex;gap:8px;align-items:center;font-weight:800;color:#fff}
+.logo{width:32px;height:32px;border-radius:8px;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.side small{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink3);padding:0 8px}
+.side .nav{height:40px;border-radius:8px;background:var(--brand);color:#fff;font-weight:800;display:flex;align-items:center;padding:0 8px}
+.main{padding:24px 32px 32px;display:flex;flex-direction:column;gap:20px;min-width:0}
+.crumb{font-size:12px;color:var(--ink2)}
+.titlerow{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.titlerow h2{margin:0;font-size:28px;line-height:32px;font-weight:800;letter-spacing:-.4px}
+.tabs{display:flex;gap:8px;border-bottom:1px solid var(--line2)}
+.tabs button{height:48px;padding:0 16px;border:0;background:transparent;font-weight:600;color:var(--ink2);margin-bottom:-1px;border-bottom:3px solid transparent}
+.tabs button.on{font-weight:800;color:var(--brand-dark);border-bottom-color:var(--brand)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px}
+.panel h4{margin:0;font-size:16px;font-weight:800}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:12px;font-weight:700;color:var(--ink2)}
+.inp{height:40px;border:1px solid var(--line2);border-radius:8px;padding:0 12px;background:#fff;width:100%}
+.inp:focus{outline:2px solid var(--brand);outline-offset:0;border-color:var(--brand)}
+.inp.err{border-color:var(--bad);background:#FEF2F2}
+.inp:disabled,.ro{background:var(--ground);color:var(--ink2)}
+.ro{border-radius:8px;padding:8px 12px;font-size:12px}
+.radio{border:2px solid var(--brand);background:var(--brand-tint);border-radius:12px;padding:12px;display:flex;gap:8px;align-items:center;font-weight:700}
+.dot{width:16px;height:16px;border-radius:50%;border:5px solid var(--brand);background:#fff}
+.tt{display:grid;grid-template-columns:60px 1fr 1fr 90px 70px;gap:12px;align-items:center}
+.tt.h{font-size:12px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.4px;background:var(--ground);padding:8px;border-radius:8px}
+.errline{grid-column:1/-1;background:var(--bad-bg);color:var(--bad-fg);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600}
+.warnline{grid-column:1/-1;background:var(--warn-bg);color:var(--warn-fg);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600}
+.btn{height:40px;padding:0 16px;border-radius:8px;border:1px solid var(--line2);background:#fff;font-weight:700}
+.btn:hover:not(:disabled){border-color:var(--brand)}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.sec{border-color:var(--brand);color:var(--brand-dark)}
+.btn.ok{background:#065F46;border-color:#065F46;color:#fff}
+.btn.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn:disabled{background:var(--line);border-color:var(--line);color:var(--ink3)}
+.btn.sm{height:32px;padding:0 10px;font-size:12px}
+.footbar{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 24px;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;align-items:center}
+.banner{border-radius:12px;padding:12px 16px;font-size:13px;font-weight:600;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.banner.info{background:var(--brand-tint);color:var(--brand-dark)}
+.banner.warn{background:var(--warn-bg);color:var(--warn-fg)}
+.banner.bad{background:var(--bad-bg);color:var(--bad-fg)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
+.kpi span{font-size:12px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.4px}
+.kpi div{font-size:30px;font-weight:800;letter-spacing:-.6px}
+.tbl{width:100%;border-collapse:collapse;min-width:820px}
+.tbl th{background:var(--ground);text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--ink2);padding:10px 8px}
+.tbl th:first-child{border-radius:8px 0 0 8px}.tbl th:last-child{border-radius:0 8px 8px 0}
+.tbl td{padding:12px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr.held td{background:#FFF7F7}
+.tbl .act{display:flex;gap:6px;justify-content:flex-end}
+.menu{position:absolute;right:0;top:44px;background:#fff;border:1px solid var(--line2);border-radius:12px;box-shadow:0 12px 30px rgba(15,23,42,.18);padding:6px;z-index:20;width:300px}
+.menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 12px;border-radius:8px}
+.menu button:hover{background:var(--ground)}
+.menu b{display:block}
+.menu small{color:var(--ink2)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;font-weight:600;z-index:80;max-width:90vw;box-shadow:0 12px 30px rgba(0,0,0,.3)}
+.toast.err{background:var(--bad)}
+.toast.ok{background:#065F46}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js" crossorigin></script>
+<script type="text/babel" data-presets="react">
+const {useState,useEffect,useRef,useContext,createContext}=React;
+
+/* ---------- helpers ---------- */
+const round2=n=>Math.round(n*100)/100;
+const num=v=>{const n=parseFloat(String(v).replace(/,/g,''));return isNaN(n)?0:n;};
+const money=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pad=n=>String(n).padStart(2,'0');
+const hms=s=>`${pad(Math.floor(s/3600))}:${pad(Math.floor(s%3600/60))}:${pad(s%60)}`;
+const hm=s=>`${pad(Math.floor(s/3600))}h:${pad(Math.floor(s%3600/60))}m`;
+const clone=o=>JSON.parse(JSON.stringify(o));
+const UID='U-30001';
+const DAY=86400, START_SECS=15900; // 04h:25m left
+
+const DEFAULT_CFG={minSpend:'50',cap:'50',fraud:'30',tiers:[
+  {min:'50.00',max:'99.99',rate:'1'},
+  {min:'100.00',max:'299.99',rate:'3'},
+  {min:'300.00',max:null,rate:'5'}]};
+
+const SEED=[
+ {id:'CLM-240831',user:'U-18420',spend:120,rate:3,cash:3.6,status:'claimed'},
+ {id:'CLM-240832',user:'U-20977',spend:840,rate:5,cash:42,status:'held'},
+ {id:'CLM-240833',user:'U-11305',spend:64,rate:1,cash:0.64,status:'claimed'},
+ {id:'CLM-240834',user:'U-30218',spend:1000,rate:5,cash:50,status:'held'},
+ {id:'CLM-240835',user:'U-09871',spend:310,rate:5,cash:15.5,status:'claimed'},
+ {id:'CLM-240836',user:'U-27764',spend:210,rate:3,cash:6.3,status:'expired'},
+ {id:'CLM-240837',user:'U-22190',spend:700,rate:5,cash:35,status:'held'},
+ {id:'CLM-240838',user:'U-15532',spend:95,rate:1,cash:0.95,status:'claimed'},
+ {id:'CLM-240801',user:UID,spend:210,rate:3,cash:6.3,status:'claimed',when:'Yesterday'},
+ {id:'CLM-240790',user:UID,spend:64,rate:1,cash:0.64,status:'expired',when:'2 days ago'}
+];
+
+function tierFor(spend,cfg){let hit=null;cfg.tiers.forEach((t,i)=>{if(spend>=num(t.min))hit=i;});return hit;}
+function payoutFor(spend,cfg){
+  const i=tierFor(spend,cfg);
+  if(i===null||spend<num(cfg.minSpend))return{tier:null,rate:0,raw:0,pay:0,capped:false};
+  const rate=num(cfg.tiers[i].rate),raw=round2(spend*rate/100),cap=num(cfg.cap);
+  return{tier:i,rate,raw,pay:Math.min(raw,cap),capped:raw>cap};
+}
+function validate(d){
+  const errors={},warns={},n=d.tiers.length;
+  d.tiers.forEach((t,i)=>{
+    if(i>0){
+      const exp=round2(num(d.tiers[i-1].max)+0.01);
+      if(Math.abs(num(t.min)-exp)>0.0001)errors[i]=`No-Gap Rule Error: Tier ${i+1} Min Spend must equal Tier ${i} Max Spend + $0.01`;
+    }
+    if(i<n-1&&num(t.max)<=num(t.min)&&!errors[i])errors[i]=`Tier ${i+1} Max Spend must be greater than its Min Spend`;
+    if(num(t.rate)>20)warns[i]=`Warning: ${t.rate}% is above 20%. Check for a typo before saving.`;
+  });
+  return{errors,warns};
+}
+const stripBase=d=>{const c=clone(d);delete c.baseVersion;return c;};
+
+const Ctx=createContext(null);
+const useA=()=>useContext(Ctx);
+
+const STATUS={
+  claimed:{cls:'b-claimed',label:'Claimed ✅'},
+  held:{cls:'b-held',label:'Held for Review ⚠️'},
+  expired:{cls:'b-expired',label:'Expired ⏳'},
+  rejected:{cls:'b-rejected',label:'Rejected'}
+};
+const Badge=({s})=><span className={'badge '+STATUS[s].cls}>{STATUS[s].label}</span>;
+
+/* ---------- PLAYER ---------- */
+function RulesModal({onClose}){
+  const {cfg}=useA();
+  return(
+    <div className="modalbg" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Rules and Terms">
+        <h3>Rules &amp; Terms</h3>
+        <ul>
+          <li>Minimum daily spend: <b>{money(num(cfg.minSpend))}</b>. Only COMPLETED orders count.</li>
+          {cfg.tiers.map((t,i)=><li key={i}>Tier {i+1}: spend {money(num(t.min))}{t.max?` to ${money(num(t.max))}`:' and above'} earns <b>{t.rate}%</b>.</li>)}
+          <li>Payout is capped at <b>{money(num(cfg.cap))}</b> per day.</li>
+          <li>One claim per day. Claim before <b>23:59:59</b>. Unclaimed cashback expires.</li>
+          <li>A new cycle starts at <b>00:00:00 (UTC+7)</b>.</li>
+          <li>Payouts above {money(num(cfg.fraud))} are held for review.</li>
+        </ul>
+        <button className="btn pri" onClick={onClose}>Got it</button>
+      </div>
+    </div>
+  );
+}
+
+function PlayerScreen(){
+  const A=useA();
+  const {cfg,spend,claimed,processing,secs,freeze,rows}=A;
+  const [rules,setRules]=useState(false);
+  const p=payoutFor(spend,cfg);
+  const min=num(cfg.minSpend);
+  const eligible=spend>=min;
+  const nextIdx=p.tier===null?0:p.tier+1;
+  const next=cfg.tiers[nextIdx];
+  const topMin=num(cfg.tiers[cfg.tiers.length-1].min);
+  const pct=Math.min(100,Math.round(spend/topMin*100));
+  const paused=!!freeze&&freeze.mode!=='afterCycle';
+  let state=1;
+  if(processing)state=4;else if(claimed)state=3;else if(eligible)state=2;
+  const names={1:'STATE 1 · Not eligible',2:'STATE 2 · Eligible',3:'STATE 3 · Already claimed',4:'STATE 4 · Processing'};
+  const mine=rows.filter(r=>r.user===UID);
+  let btn;
+  if(paused&&!claimed)btn=<button className="cta off" disabled>Program paused</button>;
+  else if(state===4)btn=<button className="cta busy" disabled><span className="spin"/>Processing…</button>;
+  else if(state===3)btn=<button className="cta off" disabled>Claimed Today ✓ - Resets in {hm(secs)}</button>;
+  else if(state===2)btn=<button className="cta go" onClick={A.claim}>CLAIM {money(p.pay)} NOW</button>;
+  else btn=<button className="cta off" disabled>Spend {money(min-spend)} more to unlock</button>;
+  return(
+    <div className="phonewrap">
+      <div>
+        <div className="phone">
+          <div className="status"><span>9:41</span><span>5G ▮▮▮</span></div>
+          <div className="phead"><h2>Daily Cashback</h2><button className="link" onClick={()=>setRules(true)}>Rules &amp; Terms</button></div>
+          <div className="pscroll">
+            <div className="card hero">
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:8}}>
+                <span className="lbl">Today’s valid spend</span>
+                <span className="timer mono">⏱ {hms(secs)}</span>
+              </div>
+              <div className="big">{money(spend)}</div>
+              <div className="bar"><i style={{width:pct+'%'}}/></div>
+              <div className="ticks"><span>{money(min)} · 1%</span><span>$100 · 3%</span><span>$300 · 5%</span></div>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginTop:4}}>
+                <span className="lbl">{p.tier===null?'No tier yet':`Tier ${p.tier+1} · ${p.rate}%`}</span>
+                <span style={{fontWeight:800,fontSize:20}}>{money(p.pay)}</span>
+              </div>
+              {p.capped&&<div className="ticks"><span>Capped at {money(num(cfg.cap))}</span></div>}
+              {btn}
+              {state===2&&next&&<div className="micro" style={{color:'#C7D2FE'}}>Spend {money(num(next.min)-spend)} more to unlock {next.rate}%</div>}
+              {state===2&&!next&&<div className="micro" style={{color:'#C7D2FE'}}>Top tier reached</div>}
+              {state===1&&<div className="micro" style={{color:'#C7D2FE'}}>Claim before 23:59:59 each day</div>}
+            </div>
+            <div className="card">
+              <b>Claim history</b>
+              <div className="hist">
+                {mine.length===0&&<div className="hint">No claims yet.</div>}
+                {mine.map(r=>(
+                  <div className="it" key={r.id}>
+                    <div><div style={{fontWeight:700}}>{money(r.cash)}</div><div className="hint">{r.when||'Today'} · spend {money(r.spend)}</div></div>
+                    <Badge s={r.status}/>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {rules&&null}
+        </div>
+        <div style={{textAlign:'center',marginTop:16}}><span className="statepill">{names[paused&&!claimed?1:state]}</span></div>
+      </div>
+      {rules&&<RulesModal onClose={()=>setRules(false)}/>}
+    </div>
+  );
+}
+
+/* ---------- ADMIN ---------- */
+function SimulateModal({onClose}){
+  const {draft}=useA();
+  const [v,setV]=useState('120');
+  const p=payoutFor(num(v),draft);
+  const held=p.pay>num(draft.fraud);
+  return(
+    <div className="modalbg" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <h3>Simulate Rule</h3>
+        <div className="hint">Runs the draft rule against a test spend. Nothing is saved.</div>
+        <div className="field"><label>Test spend ($)</label><input className="inp" value={v} inputMode="decimal" onChange={e=>setV(e.target.value)}/></div>
+        <div className="card" style={{borderRadius:12,padding:16}}>
+          {p.tier===null?<b>Not eligible: below {money(num(draft.minSpend))}</b>:<>
+            <div>Tier: <b>Tier {p.tier+1} ({p.rate}%)</b></div>
+            <div>Raw cashback: <b>{money(p.raw)}</b></div>
+            <div>Payout: <b>{money(p.pay)}</b>{p.capped&&<span className="badge b-expired" style={{marginLeft:8}}>Capped at {money(num(draft.cap))}</span>}</div>
+            {held&&<div className="badge b-held">Held for Review ⚠️ (above {money(num(draft.fraud))})</div>}
+          </>}
+        </div>
+        <button className="btn pri" onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
+}
+
+function ConfigTab(){
+  const A=useA();
+  const {draft,setDraft,version,scheduled,cfg}=A;
+  const [sim,setSim]=useState(false);
+  const {errors,warns}=validate(draft);
+  const hasErr=Object.keys(errors).length>0;
+  const base=scheduled||cfg;
+  const dirty=JSON.stringify(stripBase(draft))!==JSON.stringify(base);
+  const stale=draft.baseVersion!==version;
+  const upd=fn=>setDraft(d=>{const c=clone(d);fn(c);return c;});
+  const setMin=v=>upd(c=>{c.minSpend=v;c.tiers[0].min=(num(v)).toFixed(2);});
+  const setMax=(i,v)=>upd(c=>{c.tiers[i].max=v;if(c.tiers[i+1])c.tiers[i+1].min=round2(num(v)+0.01).toFixed(2);});
+  const addTier=()=>upd(c=>{const l=c.tiers[c.tiers.length-1];l.max=round2(num(l.min)+100-0.01).toFixed(2);c.tiers.push({min:round2(num(l.max)+0.01).toFixed(2),max:null,rate:String(num(l.rate)+1)});});
+  const delTier=i=>upd(c=>{c.tiers.splice(i,1);c.tiers[c.tiers.length-1].max=null;});
+  return(
+    <>
+      {scheduled&&<div className="banner info"><span>Scheduled for 00:00 tomorrow. Today’s rule stays active until then.</span><span className="mono">version_id v{version}</span></div>}
+      {stale&&<div className="banner bad"><span>Another admin saved v{version}. Your draft is based on v{draft.baseVersion}. Saving will be rejected.</span><button className="btn sm" onClick={A.reloadDraft}>Reload latest</button></div>}
+      <div className="grid2">
+        <div className="panel">
+          <h4>Program</h4>
+          <div className="field"><label>Reset cycle</label><div className="ro mono">Daily at 00:00:00 (UTC+7)</div></div>
+          <div className="field"><label>Claim mode</label><div className="radio"><span className="dot"/>Manual Claim before Reset</div></div>
+          <div className="field"><label>Effective policy</label>
+            <select className="inp" defaultValue="next"><option value="next">Apply Next Cycle (Tomorrow 00:00)</option></select></div>
+        </div>
+        <div className="panel">
+          <h4>Eligibility &amp; guardrails</h4>
+          <div className="field"><label>Min Daily Spend ($)</label><input className="inp" inputMode="decimal" value={draft.minSpend} onChange={e=>setMin(e.target.value)}/></div>
+          <div className="field"><label>Max Daily Cap ($)</label><input className="inp" inputMode="decimal" value={draft.cap} onChange={e=>upd(c=>{c.cap=e.target.value;})}/></div>
+          <div className="field"><label>Fraud Guardrail (auto-hold threshold) ($)</label><input className="inp" inputMode="decimal" value={draft.fraud} onChange={e=>upd(c=>{c.fraud=e.target.value;})}/></div>
+        </div>
+      </div>
+      <div className="panel">
+        <h4>Tier configuration</h4>
+        <div className="tt h"><span>Tier #</span><span>Min spend ($)</span><span>Max spend ($)</span><span>Rate (%)</span><span>Action</span></div>
+        {draft.tiers.map((t,i)=>{
+          const last=i===draft.tiers.length-1;
+          return(
+            <div className="tt" key={i}>
+              <b>{i+1}</b>
+              <input className={'inp mono'+(errors[i]?' err':'')} inputMode="decimal" value={t.min} disabled={i===0} onChange={e=>upd(c=>{c.tiers[i].min=e.target.value;})}/>
+              {last?<input className="inp mono" value="No limit" disabled/>:<input className="inp mono" inputMode="decimal" value={t.max} onChange={e=>setMax(i,e.target.value)}/>}
+              <input className="inp mono" inputMode="decimal" value={t.rate} onChange={e=>upd(c=>{c.tiers[i].rate=e.target.value;})}/>
+              {i>0?<button className="link" style={{color:'var(--bad)'}} onClick={()=>delTier(i)}>Delete</button>:<span/>}
+              {errors[i]&&<div className="errline">⛔ {errors[i]}</div>}
+              {warns[i]&&<div className="warnline">⚠️ {warns[i]}</div>}
+            </div>
+          );
+        })}
+        <div><button className="btn sec sm" onClick={addTier}>+ Add tier</button></div>
+      </div>
+      <div className="footbar">
+        <span className="hint" style={{marginRight:'auto'}}>Editing from <span className="mono">version_id v{draft.baseVersion}</span></span>
+        <button className="btn" disabled={!dirty} onClick={A.reloadDraft}>Discard</button>
+        <button className="btn sec" onClick={()=>setSim(true)}>Simulate Rule</button>
+        <button className="btn pri" disabled={hasErr||!dirty} title={hasErr?'Fix validation errors first':''} onClick={A.saveSchedule}>Save &amp; Schedule for Tomorrow (00:00)</button>
+      </div>
+      {sim&&<SimulateModal onClose={()=>setSim(false)}/>}
+    </>
+  );
+}
+
+function LogsTab(){
+  const A=useA();
+  const {rows}=A;
+  const [open,setOpen]=useState(null);
+  const flagged=rows.filter(r=>r.status==='held').length;
+  const liveSum=rows.filter(r=>r.live&&r.status==='claimed').reduce((s,r)=>s+r.cash,0);
+  const sel=rows.find(r=>r.id===open);
+  return(
+    <>
+      <div className="kpis">
+        <div className="kpi"><span>Total Eligible Users</span><div>12,408</div></div>
+        <div className="kpi"><span>Total Claimed ($)</span><div>{money(4218.35+liveSum)}</div></div>
+        <div className="kpi"><span>Flagged Transactions</span><div style={{color:'var(--bad)'}}>{flagged}</div></div>
+      </div>
+      <div className="panel">
+        <h4>Claim Logs</h4>
+        <div style={{overflowX:'auto'}}>
+          <table className="tbl">
+            <thead><tr><th>Claim ID</th><th>User ID</th><th>Spend</th><th>Tier %</th><th>Cashback Amount</th><th>Status</th><th style={{textAlign:'right'}}>Action</th></tr></thead>
+            <tbody>
+              {rows.map(r=>(
+                <tr key={r.id} className={r.status==='held'?'held':''}>
+                  <td className="mono">{r.id}</td><td className="mono">{r.user}</td>
+                  <td>{money(r.spend)}</td><td>{r.rate}%</td><td style={{fontWeight:800}}>{money(r.cash)}</td>
+                  <td><Badge s={r.status}/></td>
+                  <td>{r.status==='held'?<div className="act">
+                    <button className="btn sm" onClick={()=>setOpen(r.id)}>Review</button>
+                    <button className="btn sm ok" onClick={()=>A.decide(r.id,'claimed')}>Approve</button>
+                    <button className="btn sm bad" onClick={()=>A.decide(r.id,'rejected')}>Reject</button>
+                  </div>:<div style={{textAlign:'right',color:'var(--ink2)'}}>—</div>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {sel&&sel.status==='held'&&(
+        <div className="modalbg" onClick={()=>setOpen(null)}>
+          <div className="modal" onClick={e=>e.stopPropagation()}>
+            <h3>Review {sel.id}</h3>
+            <div className="hint">Held because the payout is above the {money(num(A.cfg.fraud))} guardrail.</div>
+            <div className="card" style={{borderRadius:12,padding:16,gap:4}}>
+              <div>User: <b className="mono">{sel.user}</b></div>
+              <div>Spend: <b>{money(sel.spend)}</b> · Tier {sel.rate}%</div>
+              <div>Cashback: <b>{money(sel.cash)}</b></div>
+            </div>
+            <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
+              <button className="btn bad" onClick={()=>{A.decide(sel.id,'rejected');setOpen(null);}}>Reject</button>
+              <button className="btn ok" onClick={()=>{A.decide(sel.id,'claimed');setOpen(null);}}>Approve</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function FreezeMenu(){
+  const A=useA();
+  const [open,setOpen]=useState(false);
+  const f=A.freeze;
+  return(
+    <div style={{position:'relative',display:'flex',gap:8,alignItems:'center'}}>
+      {f?<>
+        <span className="badge b-held">{f.mode==='immediate'?'Frozen (immediate)':f.mode==='afterCycle'?'Stop after cycle':'Stopped'}</span>
+        <button className="btn sm" onClick={A.resume}>Resume program</button>
+      </>:<span className="badge b-claimed">● Active</span>}
+      {!f&&<button className="btn bad sm" onClick={()=>setOpen(o=>!o)}>Emergency Freeze ▾</button>}
+      {open&&<div className="menu">
+        <button onClick={()=>{A.doFreeze('immediate');setOpen(false);}}><b>Immediate Freeze</b><small>Claims stop right now.</small></button>
+        <button onClick={()=>{A.doFreeze('afterCycle');setOpen(false);}}><b>Stop After Cycle</b><small>Today’s cycle finishes, no new cycle starts.</small></button>
+      </div>}
+    </div>
+  );
+}
+
+function AdminScreen(){
+  const A=useA();
+  return(
+    <div className="admin">
+      <nav className="side">
+        <div className="brandrow"><span className="logo">BO</span>BackOffice</div>
+        <div style={{display:'flex',flexDirection:'column',gap:4}}><small>Promotions</small><div className="nav">Cashback</div></div>
+        <div style={{marginTop:'auto',display:'flex',gap:8,alignItems:'center',borderTop:'1px solid #334155',paddingTop:12}}>
+          <span className="logo" style={{background:'#E2E8F0',color:'var(--ink)',borderRadius:16}}>AD</span><b style={{color:'#fff'}}>Admin Profile</b>
+        </div>
+      </nav>
+      <div className="main">
+        <div className="titlerow">
+          <div><div className="crumb">Promotions &gt; Cashback</div><h2>Daily Cashback</h2></div>
+          <FreezeMenu/>
+        </div>
+        {A.freeze&&A.freeze.mode==='afterCycle'&&<div className="banner warn">Stop After Cycle is on. Players can still claim today. The program stops at 00:00:00.</div>}
+        <div className="tabs">
+          <button className={A.tab==='config'?'on':''} onClick={()=>A.setTab('config')}>Rule Configuration</button>
+          <button className={A.tab==='logs'?'on':''} onClick={()=>A.setTab('logs')}>Claim Logs &amp; Monitoring</button>
+        </div>
+        {A.tab==='config'?<ConfigTab/>:<LogsTab/>}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- DEMO PANEL ---------- */
+function DemoPanel(){
+  const A=useA();
+  return(
+    <aside className="demo">
+      <h3>Demo controls</h3>
+      <div>
+        <label><span>Player valid spend</span><span className="mono">{money(A.spend)}</span></label>
+        <input type="range" min="0" max="1500" step="10" value={A.spend} onChange={e=>A.setSpend(+e.target.value)}/>
+        <div className="row">{[20,120,300,1200].map(v=><button key={v} className={'chip'+(A.spend===v?' on':'')} onClick={()=>A.setSpend(v)}>{money(v).replace('.00','')}</button>)}</div>
+      </div>
+      <div className="row">
+        <button className="chip" onClick={()=>A.setSecs(5)}>⏩ To 23:59:55</button>
+        <button className="chip" onClick={A.doReset}>🔄 Reset cycle now</button>
+      </div>
+      <div className="row">
+        <button className={'chip'+(A.failNext?' on':'')} onClick={()=>A.setFailNext(!A.failNext)}>📡 Drop network on next claim</button>
+        <button className="chip" onClick={A.doubleTap}>👆👆 Double tap</button>
+        <button className="chip" onClick={A.replay}>🔁 Replay claim (same key)</button>
+        <button className="chip" onClick={A.stale}>🕛 Claim at/after 00:00</button>
+        <button className="chip" onClick={A.otherAdmin}>👤 Other admin saves</button>
+        <button className="chip" onClick={A.resetAll}>♻️ Reset demo</button>
+      </div>
+      <div className="hint">Server log. Server time {hms(DAY-A.secs)} (UTC+7)</div>
+      <div className="log mono">{A.log.map((l,i)=><div key={i}><b>{l.t}</b> {l.m}</div>)}</div>
+    </aside>
+  );
+}
+
+/* ---------- APP ---------- */
+function App(){
+  const [mode,setMode]=useState('player');
+  const [tab,setTab]=useState('config');
+  const [cfg,setCfg]=useState(clone(DEFAULT_CFG));
+  const [version,setVersion]=useState(12);
+  const [draft,setDraft]=useState({...clone(DEFAULT_CFG),baseVersion:12});
+  const [scheduled,setScheduled]=useState(null);
+  const [freeze,setFreeze]=useState(null);
+  const [spend,setSpend]=useState(120);
+  const [claimed,setClaimed]=useState(null);
+  const [processing,setProcessing]=useState(false);
+  const [secs,setSecs]=useState(START_SECS);
+  const [cycle,setCycle]=useState(1);
+  const [rows,setRows]=useState(SEED);
+  const [failNext,setFailNext]=useState(false);
+  const [log,setLog]=useState([{t:hms(DAY-START_SECS),m:'Demo ready. Cycle 1 open.'}]);
+  const [toastMsg,setToast]=useState(null);
+  const busy=useRef(false);
+  const R=useRef({});
+  R.current={cfg,spend,claimed,rows,scheduled,freeze,failNext,secs,cycle,version,draft};
+
+  const addLog=m=>setLog(l=>[{t:hms(DAY-R.current.secs),m},...l].slice(0,60));
+  const toast=(msg,kind)=>{setToast({msg,kind});clearTimeout(toast.t);toast.t=setTimeout(()=>setToast(null),3200);};
+
+  useEffect(()=>{const id=setInterval(()=>setSecs(s=>s-1),1000);return()=>clearInterval(id);},[]);
+  useEffect(()=>{if(secs<=0)doReset();},[secs]);
+
+  function doReset(){
+    const s=R.current;
+    let note='Cycle reset 00:00:00.';
+    if(!s.claimed&&s.spend>=num(s.cfg.minSpend)){
+      const p=payoutFor(s.spend,s.cfg);
+      const id='CLM-'+(240900+s.rows.length);
+      setRows(r=>[{id,user:UID,spend:s.spend,rate:p.rate,cash:p.pay,status:'expired',when:'Today',live:true},...r]);
+      note+=` Unclaimed ${money(p.pay)} expired.`;
+    }
+    if(s.scheduled){setCfg(clone(s.scheduled));setDraft({...clone(s.scheduled),baseVersion:s.version});setScheduled(null);note+=' Scheduled rule is now active.';}
+    if(s.freeze&&s.freeze.mode==='afterCycle'){setFreeze({mode:'stopped'});note+=' Program stopped (Stop After Cycle).';}
+    setClaimed(null);setSpend(0);setProcessing(false);busy.current=false;setSecs(DAY);setCycle(c=>c+1);
+    addLog(note);
+  }
+
+  function claim(){
+    const s=R.current;
+    if(busy.current||s.claimed){addLog('2nd tap ignored: button frozen while loading');return;}
+    if(s.freeze&&s.freeze.mode!=='afterCycle'){toast('Program is paused by admin.','err');addLog('REJECT claim: program frozen');return;}
+    const p=payoutFor(s.spend,s.cfg);if(p.pay<=0)return;
+    const key=`idem-c${s.cycle}-${UID}`;
+    busy.current=true;setProcessing(true);
+    addLog(`POST /claim  Idempotency_Key=${key}  amount=${money(p.pay)}`);
+    setTimeout(()=>{
+      const t=R.current;
+      if(t.failNext){setFailNext(false);busy.current=false;setProcessing(false);toast('Network error. Tap CLAIM again to retry (same key).','err');addLog('Response lost. Client keeps the same Idempotency_Key.');return;}
+      if(t.rows.some(r=>r.key===key)){busy.current=false;setProcessing(false);addLog('200 OK replayed first result. No second payout.');return;}
+      const held=p.pay>num(t.cfg.fraud);
+      const id='CLM-'+(240900+t.rows.length);
+      setRows(r=>[{id,user:UID,spend:t.spend,rate:p.rate,cash:p.pay,status:held?'held':'claimed',when:'Today',live:true,key},...r]);
+      setClaimed({amount:p.pay,held});setProcessing(false);busy.current=false;
+      addLog(held?`202 HOLD ${id}: payout ${money(p.pay)} > ${money(num(t.cfg.fraud))}. Held for Review.`:`200 OK ${id}: ${money(p.pay)} credited.`);
+      toast(held?'Claim received. Held for review.':`${money(p.pay)} credited to your balance.`,held?'err':'ok');
+    },1200);
+  }
+  const doubleTap=()=>{claim();claim();};
+  const replay=()=>{
+    const k=R.current.rows.find(r=>r.key===`idem-c${R.current.cycle}-${UID}`);
+    if(k){addLog(`POST /claim (replay) key=${k.key} -> 200 OK same result ${k.id}. No second payout.`);toast('Replay returned the first result.','ok');}
+    else toast('Nothing to replay yet. Claim first.','err');
+  };
+  const stale=()=>{addLog('REJECT: server_ts >= 00:00:00. Yesterday’s cycle ended');toast('Yesterday’s cycle ended','err');};
+  const otherAdmin=()=>{setVersion(v=>v+1);addLog(`Another admin saved rule. version_id is now v${R.current.version+1}`);toast('Another admin saved a new version.');};
+  const reloadDraft=()=>{const s=R.current;setDraft({...clone(s.scheduled||s.cfg),baseVersion:s.version});addLog('Admin reloaded latest rule v'+s.version);};
+  const saveSchedule=()=>{
+    const s=R.current;
+    if(s.draft.baseVersion!==s.version){toast(`Rejected: version_id mismatch (loaded v${s.draft.baseVersion}, server v${s.version}).`,'err');addLog(`409 CONFLICT save v${s.draft.baseVersion} vs server v${s.version}`);return;}
+    const nv=s.version+1;
+    setScheduled(stripBase(s.draft));setVersion(nv);setDraft(d=>({...d,baseVersion:nv}));
+    addLog(`Rule saved as v${nv}. Effective 00:00 tomorrow.`);
+    toast('Scheduled for 00:00 tomorrow. Today’s rule is unchanged.','ok');
+  };
+  const decide=(id,status)=>{
+    setRows(r=>r.map(x=>x.id===id?{...x,status}:x));
+    addLog(`Admin ${status==='claimed'?'APPROVED':'REJECTED'} ${id}`);
+    toast(status==='claimed'?`${id} approved and credited.`:`${id} rejected. Cashback not credited.`,status==='claimed'?'ok':'err');
+  };
+  const doFreeze=m=>{setFreeze({mode:m});addLog(m==='immediate'?'EMERGENCY FREEZE: immediate. Claims blocked.':'Stop After Cycle armed.');toast(m==='immediate'?'Program frozen.':'Program stops after today’s cycle.','err');};
+  const resume=()=>{setFreeze(null);addLog('Program resumed.');toast('Program resumed.','ok');};
+  const resetAll=()=>{
+    setCfg(clone(DEFAULT_CFG));setVersion(12);setDraft({...clone(DEFAULT_CFG),baseVersion:12});setScheduled(null);setFreeze(null);
+    setSpend(120);setClaimed(null);setProcessing(false);busy.current=false;setSecs(START_SECS);setCycle(1);setRows(SEED);setFailNext(false);
+    setLog([{t:hms(DAY-START_SECS),m:'Demo reset.'}]);
+  };
+
+  const api={mode,tab,setTab,cfg,version,draft,setDraft,scheduled,freeze,spend,setSpend,claimed,processing,secs,setSecs,rows,failNext,setFailNext,log,
+    claim,doubleTap,replay,stale,otherAdmin,reloadDraft,saveSchedule,decide,doFreeze,resume,resetAll,doReset};
+  return(
+    <Ctx.Provider value={api}>
+      <div className="topbar">
+        <div><h1>Daily Cashback · Live Demo</h1><div className="sub">Product Challenge V2 · React mockup, no backend</div></div>
+        <div className="seg">
+          <button className={mode==='player'?'on':''} onClick={()=>setMode('player')}>Player (mobile)</button>
+          <button className={mode==='admin'?'on':''} onClick={()=>setMode('admin')}>Admin BackOffice</button>
+        </div>
+      </div>
+      <div className="stage">
+        <main>{mode==='player'?<PlayerScreen/>:<AdminScreen/>}</main>
+        <DemoPanel/>
+      </div>
+      {toastMsg&&<div className={'toast '+(toastMsg.kind||'')}>{toastMsg.msg}</div>}
+    </Ctx.Provider>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
